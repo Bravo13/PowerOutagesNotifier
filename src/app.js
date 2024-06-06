@@ -135,12 +135,12 @@ function processData() {
     const date = $('#datePicker').val();
 
     if(date == ""){
-        alert('Select date');
+        alert('Оберіть дату');
         return;
     }
 
     if( textSchedule == "" ){
-        alert('Put text schedule');
+        alert('Введіть текст графіку відключень');
         return;
     }
 
@@ -266,7 +266,7 @@ function sendData() {
     }).get();
 
     if( selectedCalendars.length == 0){
-        alert('Select at least one calendar');
+        alert('Оберіть хочаб один календар');
         return;
     }
 
@@ -281,6 +281,7 @@ function sendData() {
             schedule.timeRanges.forEach((item) => createCalendarEvent(item.start, item.end, calendarId));
         })
     });
+    alert('Готово, перевіряйте календар')
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
