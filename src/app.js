@@ -230,7 +230,7 @@ function mergeTimeRanges(dateRanges) {
 
 function createCalendarEvent( startTime, endTime, calendarId ) {
     const event = {
-        'summary' : 'Power outage',
+        'summary' : 'Відсутність електрики',
         'start' : {
             'dateTime': startTime.format('YYYY-MM-DDTHH:mm:SSZ'),
             'timeZone' : 'Europe/Kyiv'
