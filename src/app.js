@@ -1,6 +1,6 @@
 let CLIENT_ID, API_KEY;
 let DISCOVERY_DOC = "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest";
-let SCOPES = "https://www.googleapis.com/auth/calendar.readonly";
+let SCOPES = "https://www.googleapis.com/auth/calendar.events";
 
 let gapiInited = false;
 
