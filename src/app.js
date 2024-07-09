@@ -6,6 +6,23 @@ let gapiInited = false;
 
 let queuesDict;
 
+const EVENT_TITLE = 'Відсутність електрики';
+
+const MONTH_MAP = {
+    'січня': '01',
+    'лютого': '02',
+    'березня': '03',
+    'квітня': '04',
+    'травня': '05',
+    'червня': '06',
+    'липня': '07',
+    'серпня': '08',
+    'вересня': '09',
+    'жовтня': '10',
+    'листопада': '11',
+    'грудня': '12'
+};
+
 window['moment-range'].extendMoment(moment);
 
 function loadConfig() {
@@ -57,7 +74,6 @@ function gisLoaded() {
 }
 
 function appLoaded() {
-    document.getElementById('datePicker').valueAsDate = new Date();
     hideLoading();
 }
 
@@ -132,10 +148,10 @@ function hideProcessButton() {
 
 function processData() {
     const textSchedule = $('#textSchedule').val();
-    const date = $('#datePicker').val();
+    const date = parseDate(textSchedule);
 
-    if(date == ""){
-        alert('Оберіть дату');
+    if(date == undefined){
+        alert('Не зміг знайти дату');
         return;
     }
 
@@ -163,6 +179,18 @@ function showQueues(queuesList) {
         container.append(checkbox);
     });
     container.show();
+}
+
+function parseDate(textSchedule){
+    const regex = /(\d+)\s*?(січня|лютого|березня|квітня|травня|червня|липня|серпня|вересня|жовтня|листопада|грудня)/;
+    const match = textSchedule.match(regex);
+    if(!match) {
+        return undefined;
+    }
+    const [day, month] = match;
+    const monthNumber = MONTH_MAP[month];
+    const date = moment(`2024-${monthNumber}-${day}`, 'YYYY-MM-DD');
+    return date.format('YYYY-MM-DD');
 }
 
 function parseSchedule(textSchedule, date) {
