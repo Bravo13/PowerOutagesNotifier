@@ -161,7 +161,7 @@ function processData() {
     }
 
     queuesDict = parseSchedule(textSchedule, date);
-    showQueues(queuesDict);
+    showQueues(queuesDict.items);
 
     hideProcessButton();
 }
@@ -197,7 +197,11 @@ function parseSchedule(textSchedule, date) {
     const regex = /^[^\d]*(\d{2}:\d{2})-(\d{2}:\d{2})\s+((?:(?:\d)[^\d]*?)+)$/gm;
     let matches;
 
-    let queuesDict = {};
+    let queuesDict = {
+        ranges: [],
+        range: undefined,
+        items: []
+    };
 
     while ((matches = regex.exec(textSchedule)) !== null) {
         // This is necessary to avoid infinite loops with zero-width matches
@@ -210,22 +214,24 @@ function parseSchedule(textSchedule, date) {
         const queuesList = queues.match(/\d/g);
 
         queuesList
-            .filter(item => queuesDict[item] === undefined)
-            .forEach( item => queuesDict[item] = {title:`Черга ${item}`, timeRanges:[]});
+            .filter(item => queuesDict.items[item] === undefined)
+            .forEach( item => queuesDict.items[item] = {title:`Черга ${item}`, timeRanges:[]});
 
         queuesList.forEach(
-            item => queuesDict[item]
+            item => {
+                const rng = moment.range(
+                    moment(`${date}T${startTime}`),
+                    moment(`${date}T${endTime}`)
+                );
+                queuesDict.ranges.push(rng);
+                queuesDict.items[item]
                         .timeRanges
-                        .push(
-                            moment.range(
-                                moment(`${date}T${startTime}`),
-                                moment(`${date}T${endTime}`)
-                            )
-                        )
-                    )
+                        .push(rng);
+            }
+        );
     } 
-
-    Object.keys(queuesDict).forEach( index => queuesDict[index].timeRanges = mergeTimeRanges(queuesDict[index].timeRanges));
+    [queuesDict.range] = mergeTimeRanges(queuesDict.ranges);
+    Object.keys(queuesDict.items).forEach( index => queuesDict.items[index].timeRanges = mergeTimeRanges(queuesDict.items[index].timeRanges));
     return queuesDict;
 }
 
@@ -254,7 +260,7 @@ function mergeTimeRanges(dateRanges) {
 
 function createCalendarEvent( startTime, endTime, calendarId ) {
     const event = {
-        'summary' : 'Відсутність електрики',
+        'summary' : EVENT_TITLE,
         'start' : {
             'dateTime': startTime.format('YYYY-MM-DDTHH:mm:SSZ'),
             'timeZone' : 'Europe/Kyiv'
@@ -318,17 +324,23 @@ async function sendData() {
         return;
     }
 
-    selectedQueues.forEach( queue => {
-        const schedule = queuesDict[queue];
+    for( queue of selectedQueues){
+        const schedule = queuesDict.items[queue];
         if( schedule == undefined ) {
             console.error(`Schedule ${schedule} not defined in dict`);
             return;
         }
 
-        selectedCalendars.forEach((calendarId) => {
+        for( calendarId of selectedCalendars ){
+            const events = await listCalendarEvents(queuesDict.range, calendarId);
+            console.log(events);
+            for( oldEvent of events ){
+                console.log('Removing event', oldEvent.id);
+                await removeCalendarEvent(calendarId, oldEvent.id)
+            }
             schedule.timeRanges.forEach((item) => createCalendarEvent(item.start, item.end, calendarId));
-        })
-    });
+        }
+    };
     alert('Готово, перевіряйте календар')
 }
 
