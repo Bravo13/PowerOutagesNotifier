@@ -252,7 +252,31 @@ function createCalendarEvent( startTime, endTime, calendarId ) {
     request.execute((event) => console.info('Event created', event.htmlLink));
 }
 
-function sendData() {
+function listCalendarEvents(date, calendarId) {
+    let request = gapi.client.calendar.events.list({
+        "calendarId": calendarId,
+        "singleEvents" : true,
+        "q": EVENT_TITLE,
+        "orderBy" : "startTime",
+        "timeMin":  date.startOf('day').format('YYYY-MM-DDTHH:mm:SSZ'),
+        "timeMax":  date.clone().add(1, 'day').startOf('day').format('YYYY-MM-DDTHH:mm:SSZ'),
+    });
+    return new Promise( (resolve, reject) => {
+        request.execute( list => resolve(list.items) );
+    });
+}
+
+function removeCalendarEvent(calendarId, eventId) {
+    let request = gapi.client.calendar.events.list({
+        "calendarId": calendarId,
+        "eventId": eventId
+    });
+    return new Promise( (resolve, reject) => {
+        request.execute( list => resolve(list.items) );
+    });
+}
+
+async function sendData() {
     const selectedQueues = $('[name="queues"]:checked').map(function() {
         return this.value;
     }).get();
