@@ -295,7 +295,7 @@ function listCalendarEvents(date, calendarId) {
 }
 
 function removeCalendarEvent(calendarId, eventId) {
-    let request = gapi.client.calendar.events.list({
+    let request = gapi.client.calendar.events.delete({
         "calendarId": calendarId,
         "eventId": eventId
     });
