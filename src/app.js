@@ -187,7 +187,7 @@ function parseDate(textSchedule){
     if(!match) {
         return undefined;
     }
-    const [day, month] = match;
+    const [wholeMatch, day, month] = match;
     const monthNumber = MONTH_MAP[month];
     const date = moment(`2024-${monthNumber}-${day}`, 'YYYY-MM-DD');
     return date.format('YYYY-MM-DD');
