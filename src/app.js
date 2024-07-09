@@ -166,7 +166,7 @@ function showQueues(queuesList) {
 }
 
 function parseSchedule(textSchedule, date) {
-    const regex = /^[^\d]+(\d{2}:\d{2})-(\d{2}:\d{2})\s+(\d)[^\d]+(\d)*[^\d]*(\d)*[^\d]*$/gm;
+    const regex = /^[^\d]*(\d{2}:\d{2})-(\d{2}:\d{2})\s+((?:(?:\d)[^\d]*?)+)$/gm;
     let matches;
 
     let queuesDict = {};
@@ -178,18 +178,14 @@ function parseSchedule(textSchedule, date) {
         }
 
         // Matches will contain the full match and the capture groups
-        const startTime = matches[1];
-        const endTime = matches[2];
-        const firstQueue = matches[3];
-        const secondQueue = matches[4] ? matches[4] : '';
-        const thirdQueue = matches[5] ? matches[5] : '';
-        const filteredQueues = [firstQueue, secondQueue, thirdQueue].filter(Boolean)
+        const [fullMatch, startTime, endTime, queues] = matches;
+        const queuesList = queues.match(/\d/g);
 
-        filteredQueues
+        queuesList
             .filter(item => queuesDict[item] === undefined)
-            .forEach( item => queuesDict[item] = {title:`Queue ${item}`, timeRanges:[]});
+            .forEach( item => queuesDict[item] = {title:`Черга ${item}`, timeRanges:[]});
 
-        filteredQueues.forEach(
+        queuesList.forEach(
             item => queuesDict[item]
                         .timeRanges
                         .push(
